@@ -1,46 +1,89 @@
-import { z } from 'zod'
-import { getUserByUsername } from '~~/server/utils/database/user'
+import { loginPasswordRequestSchema } from '#shared/schemas/authSchema';
+import type { ApiAuthenticationPayload } from '~~/types/api';
+import { apiError, success, zodErrorToFieldErrors } from '~~/server/utils/apiResponse';
+import { getUserByUsername } from '~~/server/utils/database/user';
 
-const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(1, 'Password is required'),
-})
+type AuthenticatedUser = Awaited<ReturnType<typeof getUserByUsername>>;
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const { username, password } = await loginSchema.parseAsync(body)
+  const body = await readBody(event);
+  const validation = loginPasswordRequestSchema.safeParse(body);
 
-  // Find user by username
-  const user = await getUserByUsername(username)
+  if (!validation.success) {
+    throw apiError({
+      status: 400,
+      statusText: 'Bad Request',
+      message: 'A username and password are required',
+      code: 'VALIDATION_ERROR',
+      fieldErrors: zodErrorToFieldErrors(validation.error),
+    });
+  }
+
+  const { username, password } = validation.data;
+
+  let user: AuthenticatedUser;
+  try {
+    user = await getUserByUsername(username);
+  } catch (cause) {
+    throw apiError({
+      status: 500,
+      statusText: 'Internal Server Error',
+      message: 'Unable to authenticate with the supplied credentials',
+      code: 'AUTHENTICATION_FAILED',
+      cause,
+    });
+  }
 
   if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Cannot find user with the provided username',
-    })
+    throw apiError({
+      status: 401,
+      statusText: 'Unauthorized',
+      message: 'Invalid username or password',
+      code: 'INVALID_CREDENTIALS',
+    });
   }
 
-  // Verify password using nuxt-auth-utils
-  const isValidPassword = await verifyPassword(user.password, password)
+  let isValidPassword: boolean;
+  try {
+    isValidPassword = await verifyPassword(user.password, password);
+  } catch (cause) {
+    throw apiError({
+      status: 500,
+      statusText: 'Internal Server Error',
+      message: 'Unable to authenticate with the supplied credentials',
+      code: 'AUTHENTICATION_FAILED',
+      cause,
+    });
+  }
 
   if (!isValidPassword) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Invalid username or password',
-    })
+    throw apiError({
+      status: 401,
+      statusText: 'Unauthorized',
+      message: 'Invalid username or password',
+      code: 'INVALID_CREDENTIALS',
+    });
   }
 
-  // Update last login
-  await updateUser(user.id, { lastLoginAt: new Date() })
+  try {
+    await updateUser(user.id, { lastLoginAt: new Date() });
+    await setUserSession(event, {
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+      },
+    });
+  } catch (cause) {
+    throw apiError({
+      status: 500,
+      statusText: 'Internal Server Error',
+      message: 'Unable to complete sign in',
+      code: 'AUTHENTICATION_FAILED',
+      cause,
+    });
+  }
 
-  // Set user session
-  await setUserSession(event, {
-    user: {
-      id: user.id,
-      username: user.username,
-      name: user.name,
-    },
-  })
-
-  return { success: true }
-})
+  const response: ApiAuthenticationPayload = { authenticated: true };
+  return success(response);
+});

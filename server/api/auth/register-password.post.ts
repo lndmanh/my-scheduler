@@ -1,65 +1,94 @@
-import { z } from 'zod'
-import { createUser, getUserByUsername } from '~~/server/utils/database/user'
+import { registerPasswordRequestSchema } from '#shared/schemas/authSchema';
+import type { ApiRegistrationPayload } from '~~/types/api';
+import { apiError, success, zodErrorToFieldErrors } from '~~/server/utils/apiResponse';
+import { createUser, getUserByUsername } from '~~/server/utils/database/user';
 
-// Enhanced password complexity validation matching client-side requirements
-const passwordComplexitySchema = z.string()
-  .min(8, 'Password must be at least 8 characters')
-  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-  .regex(/[0-9]/, 'Password must contain at least one number')
-  .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character')
-
-const registerSchema = z.object({
-  username: z.string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(50, 'Username too long')
-    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, hyphens, and underscores'),
-  email: z.string().email('Valid email is required'),
-  password: passwordComplexitySchema,
-})
+type ExistingUser = Awaited<ReturnType<typeof getUserByUsername>>;
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const { username, email: _email, password } = await registerSchema.parseAsync(body)
+  const body = await readBody(event);
+  const validation = registerPasswordRequestSchema.safeParse(body);
 
-  // Check if username already exists
-  const existingUser = await getUserByUsername(username)
+  if (!validation.success) {
+    throw apiError({
+      status: 400,
+      statusText: 'Bad Request',
+      message: 'Please correct the registration details',
+      code: 'VALIDATION_ERROR',
+      fieldErrors: zodErrorToFieldErrors(validation.error),
+    });
+  }
+
+  const { username, password } = validation.data;
+
+  let existingUser: ExistingUser;
+  try {
+    existingUser = await getUserByUsername(username);
+  } catch (cause) {
+    throw apiError({
+      status: 500,
+      statusText: 'Internal Server Error',
+      message: 'Unable to register an account',
+      code: 'REGISTRATION_FAILED',
+      cause,
+    });
+  }
 
   if (existingUser) {
-    throw createError({
-      statusCode: 409,
-      statusMessage: 'Username already exists',
-    })
+    throw apiError({
+      status: 409,
+      statusText: 'Conflict',
+      message: 'Username already exists',
+      code: 'USERNAME_EXISTS',
+    });
   }
 
-  // Hash password using nuxt-auth-utils
-  const hashedPassword = await hashPassword(password)
+  try {
+    const hashedPassword = await hashPassword(password);
+    const newUser = await createUser({
+      username: username.toLowerCase().trim(),
+      name: username.trim(),
+      password: hashedPassword,
+      createdAt: new Date(),
+      lastLoginAt: new Date(),
+    });
 
-  // Create user
-  const newUser = await createUser({
-    username: username.toLowerCase().trim(),
-    name: username.trim(),
-    password: hashedPassword,
-    createdAt: new Date(),
-    lastLoginAt: new Date(),
-  })
+    await setUserSession(event, {
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        name: newUser.name,
+      },
+    });
 
-  // Set user session
-  await setUserSession(event, {
-    user: {
-      id: newUser.id,
-      username: newUser.username,
-      name: newUser.name,
-    },
-  })
+    const response: ApiRegistrationPayload = {
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        name: newUser.name,
+      },
+    };
 
-  return {
-    success: true,
-    user: {
-      id: newUser.id,
-      username: newUser.username,
-      name: newUser.name,
-    },
-    statusMessage: 'Account created successfully. You can now create a passkey for additional security.',
+    return success(
+      response,
+      'Account created successfully. You can now create a passkey for additional security.',
+    );
+  } catch (cause) {
+    if (cause instanceof Error && cause.message.includes('UNIQUE constraint failed')) {
+      throw apiError({
+        status: 409,
+        statusText: 'Conflict',
+        message: 'Username already exists',
+        code: 'USERNAME_EXISTS',
+      });
+    }
+
+    throw apiError({
+      status: 500,
+      statusText: 'Internal Server Error',
+      message: 'Unable to register an account',
+      code: 'REGISTRATION_FAILED',
+      cause,
+    });
   }
-})
+});

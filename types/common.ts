@@ -1,5 +1,4 @@
 import type { Component } from 'vue'
-import type { User } from '~~/shared/db'
 
 export interface SidebarItem {
   title: string
@@ -8,7 +7,7 @@ export interface SidebarItem {
   items?: SidebarItem[]
 }
 
-export type SidebarGuardUser = User | null | undefined
+export type SidebarGuardUser = { isAdmin?: boolean } | null | undefined
 
 export interface SidebarSection {
   title: string
