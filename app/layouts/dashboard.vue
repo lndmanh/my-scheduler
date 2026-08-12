@@ -1,18 +1,36 @@
 <template>
   <div>
     <SidebarProvider>
-      <AppSidebar variant="inset" />
+      <AppSidebar :variant="sidebarVariant" />
       <SidebarInset>
-        <slot />
+        <div
+          class="flex flex-1 min-h-dvh overflow-hidden"
+        >
+          <div
+            class="flex flex-1 min-w-0 flex-col overflow-hidden transition-[padding-right] duration-200 ease-out"
+          >
+            <AppLayout>
+              <template #title-controls>
+                <DashboardSettingsPopover />
+              </template>
+              <slot />
+            </AppLayout>
+          </div>
+        </div>
       </SidebarInset>
     </SidebarProvider>
-    <BackToTop />
   </div>
 </template>
 
 <script setup lang="ts">
-import 'vue-sonner/style.css'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import BackToTop from '@/components/BackToTop.vue'
+import AppLayout from '@/components/AppLayout.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
+import DashboardSettingsPopover from '@/components/DashboardSettingsPopover.vue'
+
+const { sidebarVariant: contextVariant } = useSidebarContext()
+
+const sidebarVariant = computed(() => {
+  return contextVariant.value
+})
 </script>

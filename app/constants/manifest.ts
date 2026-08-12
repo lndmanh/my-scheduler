@@ -1,10 +1,10 @@
-import type { ManifestOptions } from 'vite-plugin-pwa'
+import type { ManifestOptions } from 'vite-plugin-pwa';
 
 export const APP_MANIFEST: Partial<ManifestOptions> = {
-  name: 'Nuxt Starter Kit',
-  short_name: 'Nuxt Template',
-  description: 'A Nuxt 3 starter template with NuxtHub, Auth, and PWA support',
-  start_url: '/pwa',
+  name: 'My Scheduler',
+  short_name: 'My Scheduler',
+  description: "Le Ngo Duc Manh's personal scheduler app",
+  start_url: '/',
   display: 'standalone',
   background_color: '#ffffff',
   theme_color: '#8b5cf6',
@@ -12,14 +12,6 @@ export const APP_MANIFEST: Partial<ManifestOptions> = {
   scope: '/',
   lang: 'en',
   categories: ['education', 'productivity'],
-  shortcuts: [
-    {
-      name: 'Dashboard',
-      short_name: 'Dashboard',
-      description: 'Sample shortcut to dashboard',
-      url: '/dashboard',
-    },
-  ],
   icons: [
     {
       src: 'pwa-64x64.png',
@@ -44,7 +36,7 @@ export const APP_MANIFEST: Partial<ManifestOptions> = {
       purpose: 'maskable',
     },
   ],
-}
+};
 
 // SEO-related constants
 export const SEO_CONFIG = {
@@ -54,4 +46,4 @@ export const SEO_CONFIG = {
   twitterCard: 'summary_large_image' as const,
   robots: 'index, follow',
   colorScheme: 'light dark',
-} as const
+} as const;

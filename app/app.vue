@@ -10,11 +10,11 @@
 </template>
 
 <script lang="ts" setup>
-import { Toaster } from '@/components/ui/sonner'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { toast } from 'vue-sonner'
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { toast } from 'vue-sonner';
 
-const { $pwa } = useNuxtApp()
+const { $pwa } = useNuxtApp();
 
 onMounted(() => {
   if ($pwa?.needRefresh)
@@ -23,6 +23,6 @@ onMounted(() => {
         label: 'Reload',
         onClick: () => $pwa.updateServiceWorker(),
       },
-    })
-})
+    });
+});
 </script>

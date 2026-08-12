@@ -1,73 +1,76 @@
 <script setup lang="ts">
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, User, Lock, Eye, EyeOff, Fingerprint } from 'lucide-vue-next'
-import CenteredAppLayout from '@/components/CenteredAppLayout.vue'
-import type { NuxtError } from '#app'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, User, Lock, Eye, EyeOff, Fingerprint } from '@lucide/vue';
+import CenteredAppLayout from '@/components/CenteredAppLayout.vue';
+import { apiRoutes } from '#shared/apiRoutes';
+import type { ApiAuthenticationPayload, ApiResponse } from '~~/types/api';
+import { apiRequest } from '@/utils/apiRequest';
+import { parseApiError } from '@/utils/apiError';
 
-const { fetch } = useUserSession()
-const { authenticate } = useWebAuthn()
-const username = ref('')
-const password = ref('')
-const showPassword = ref(false)
-const isLoading = ref(false)
-const error = ref('')
+const { fetch } = useUserSession();
+const { authenticate } = useWebAuthn();
+const username = ref('');
+const password = ref('');
+const showPassword = ref(false);
+const isLoading = ref(false);
+const error = ref('');
 
 async function signInWithPassword() {
   if (!username.value.trim()) {
-    error.value = 'Username is required'
-    return
+    error.value = 'Username is required';
+    return;
   }
   if (!password.value.trim()) {
-    error.value = 'Password is required'
-    return
+    error.value = 'Password is required';
+    return;
   }
 
-  isLoading.value = true
-  error.value = ''
+  isLoading.value = true;
+  error.value = '';
 
   try {
-    await $fetch('/api/auth/login-password', {
-      method: 'POST',
-      body: { username: username.value, password: password.value },
-    })
-    await fetch()
-    await navigateTo('/')
-  }
-  catch (err: unknown) {
-    error.value = err instanceof Error && 'statusMessage' in err
-      ? (err as NuxtError).statusMessage || 'Authentication failed'
-      : 'Authentication failed'
-  }
-  finally {
-    isLoading.value = false
+    const response = await apiRequest<ApiResponse<ApiAuthenticationPayload>>(
+      apiRoutes.auth.loginPassword,
+      {
+        method: 'POST',
+        body: { username: username.value, password: password.value },
+      },
+    );
+
+    if (!response.success) {
+      throw response;
+    }
+
+    await fetch();
+    await navigateTo('/');
+  } catch (err: unknown) {
+    error.value = parseApiError(err, 'Authentication failed').message;
+  } finally {
+    isLoading.value = false;
   }
 }
 
 async function signInWithPasskey() {
   if (!username.value.trim()) {
-    error.value = 'Username is required'
-    return
+    error.value = 'Username is required';
+    return;
   }
 
-  isLoading.value = true
-  error.value = ''
+  isLoading.value = true;
+  error.value = '';
 
   try {
-    await authenticate(username.value)
-    await fetch()
-    await navigateTo('/')
-  }
-  catch (err: unknown) {
-    error.value = err instanceof Error && 'statusMessage' in err
-      ? (err as NuxtError).statusMessage || 'Authentication failed'
-      : 'Authentication failed'
-  }
-  finally {
-    isLoading.value = false
+    await authenticate(username.value);
+    await fetch();
+    await navigateTo('/');
+  } catch (err: unknown) {
+    error.value = parseApiError(err, 'Authentication failed').message;
+  } finally {
+    isLoading.value = false;
   }
 }
 
@@ -75,7 +78,7 @@ definePageMeta({
   layout: 'empty',
   title: 'Login',
   breadcrumb: 'Login',
-})
+});
 </script>
 
 <template>
@@ -87,36 +90,20 @@ definePageMeta({
   >
     <Card class="w-full max-w-md mx-4">
       <CardHeader class="text-center relative">
-        <CardTitle>
-          Welcome Back
-        </CardTitle>
-        <CardDescription>
-          Sign in to your Gromet Reader account to continue
-        </CardDescription>
+        <CardTitle> Welcome Back </CardTitle>
+        <CardDescription> Sign in to your Gromet Reader account to continue </CardDescription>
       </CardHeader>
 
       <CardContent>
-        <Alert
-          v-if="error"
-          variant="destructive"
-          class="mb-4"
-        >
+        <Alert v-if="error" variant="destructive" class="mb-4">
           <AlertDescription>{{ error }}</AlertDescription>
         </Alert>
 
-        <form
-          class="space-y-4"
-          @submit.prevent
-        >
+        <form class="space-y-4" @submit.prevent>
           <div class="space-y-2">
-            <Label
-              for="username"
-              class="text-sm font-medium"
-            >
-              Username
-            </Label>
+            <Label for="username" class="text-sm font-medium"> Username </Label>
             <div class="relative">
-              <User class="absolute left-3 top-3 h-4 w-4" />
+              <User class="absolute left-3 top-3 size-4" />
               <Input
                 id="username"
                 v-model="username"
@@ -130,20 +117,15 @@ definePageMeta({
           </div>
 
           <div class="space-y-2">
-            <Label
-              for="password"
-              class="text-sm font-medium"
-            >
-              Password
-            </Label>
+            <Label for="password" class="text-sm font-medium"> Password </Label>
             <div class="relative">
-              <Lock class="absolute left-3 top-3 h-4 w-4" />
+              <Lock class="absolute left-3 top-3 size-4" />
               <Input
                 id="password"
                 v-model="password"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="Enter your password"
-                class="pl-9 pr-9 h-11"
+                class="px-9 h-11"
                 :disabled="isLoading"
                 @keydown.enter="signInWithPassword"
               />
@@ -151,17 +133,11 @@ definePageMeta({
                 type="button"
                 variant="ghost"
                 size="sm"
-                class="absolute right-1 top-1 h-9 w-9 p-0 hover:bg-transparent"
+                class="absolute right-1 top-1 size-9 p-0 hover:bg-transparent"
                 @click="showPassword = !showPassword"
               >
-                <Eye
-                  v-if="!showPassword"
-                  class="h-4 w-4"
-                />
-                <EyeOff
-                  v-else
-                  class="h-4 w-4"
-                />
+                <Eye v-if="!showPassword" class="size-4" />
+                <EyeOff v-else class="size-4" />
               </Button>
             </div>
           </div>
@@ -173,14 +149,8 @@ definePageMeta({
               :disabled="isLoading || !username.trim() || !password.trim()"
               @click="signInWithPassword"
             >
-              <Loader2
-                v-if="isLoading"
-                class="mr-2 h-4 w-4 animate-spin"
-              />
-              <Lock
-                v-else
-                class="mr-2 h-4 w-4"
-              />
+              <Loader2 v-if="isLoading" class="mr-2 size-4 animate-spin" />
+              <Lock v-else class="mr-2 size-4" />
               Sign In with Password
             </Button>
 
@@ -200,14 +170,8 @@ definePageMeta({
               :disabled="isLoading || !username.trim()"
               @click="signInWithPasskey"
             >
-              <Loader2
-                v-if="isLoading"
-                class="mr-2 h-4 w-4 animate-spin"
-              />
-              <Fingerprint
-                v-else
-                class="mr-2 h-4 w-4"
-              />
+              <Loader2 v-if="isLoading" class="mr-2 size-4 animate-spin" />
+              <Fingerprint v-else class="mr-2 size-4" />
               Sign In with a Passkey
             </Button>
           </div>
@@ -221,22 +185,21 @@ definePageMeta({
               class="underline"
               target="_blank"
               rel="noopener noreferrer"
-            >Terms of Service</NuxtLink>
+              >Terms of Service</NuxtLink
+            >
             and
             <NuxtLink
               to="https://nnsvn.me/privacy"
               class="underline"
               target="_blank"
               rel="noopener noreferrer"
-            >Privacy Policy</NuxtLink>
+              >Privacy Policy</NuxtLink
+            >
           </div>
 
           <div class="text-sm text-gray-600 dark:text-gray-300">
             Don't have an account?
-            <nuxt-link
-              to="/auth/register"
-              class="text-primary hover:underline font-medium"
-            >
+            <nuxt-link to="/auth/register" class="text-primary hover:underline font-medium">
               Sign Up
             </nuxt-link>
           </div>

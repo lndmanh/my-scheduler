@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ChevronsUpDown, LogOut, SunMoon, Settings, LogIn, UserIcon, UsersIcon } from 'lucide-vue-next'
+import { ChevronsUpDown, LogOut, SunMoon, Settings, LogIn, UserIcon, UsersIcon } from '@lucide/vue';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,48 +13,48 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from '@/components/ui/sidebar'
+} from '@/components/ui/dropdown-menu';
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 
-import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
-import type { User } from '~~/server/utils/db'
+import ThemeSwitcher from '@/components/ThemeSwitcher.vue';
+import { apiRoutes } from '#shared/apiRoutes';
+import type { ApiAdminUserPayload, ApiResponse } from '~~/types/api';
 
-const { user, clear } = useUserSession()
+const { user, clear } = useUserSession();
 
 const defaultUser = {
   name: 'Guest User',
   username: 'guest',
   avatar: '/images/avatar/default.png',
-} as const
+} as const;
 
-const isAuthenticated = computed(() => !!user.value)
+const isAuthenticated = computed(() => !!user.value);
 
-const {
-  data: fetchedUser,
-  refresh: refreshUser,
-} = useFetch<User>('/api/users/me', {
+const { data: currentUserResponse, refresh: refreshUser } = await useAPI<
+  ApiResponse<ApiAdminUserPayload>
+>(apiRoutes.users.current, {
   immediate: isAuthenticated.value,
   watch: false,
-})
+});
 
 // Refresh user data when authentication state changes
 watch(isAuthenticated, async (authenticated) => {
   if (authenticated) {
-    await refreshUser()
+    await refreshUser();
   }
-})
+});
 
-const displayUser = computed(() => fetchedUser.value ?? user.value ?? defaultUser)
+const fetchedUser = computed(() => {
+  const response = currentUserResponse.value;
+  return response?.success ? response.data : null;
+});
+const displayUser = computed(() => fetchedUser.value ?? user.value ?? defaultUser);
 const userInitial = computed(() =>
   isAuthenticated.value ? displayUser.value.name?.charAt(0).toUpperCase() : 'G',
-)
+);
 
 async function logout() {
-  await clear()
+  await clear();
 }
 </script>
 
@@ -67,11 +67,8 @@ async function logout() {
             size="lg"
             class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
-            <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage
-                :src="defaultUser.avatar"
-                :alt="displayUser.name"
-              />
+            <Avatar class="size-8 rounded-lg">
+              <AvatarImage :src="defaultUser.avatar" :alt="displayUser.name" />
               <AvatarFallback class="rounded-lg">
                 {{ userInitial }}
               </AvatarFallback>
@@ -90,24 +87,15 @@ async function logout() {
           :side-offset="4"
         >
           <DropdownMenuGroup>
-            <DropdownMenuItem
-              v-if="fetchedUser?.isAdmin"
-              @click="navigateTo('/admin')"
-            >
+            <DropdownMenuItem v-if="fetchedUser?.isAdmin" @click="navigateTo('/admin')">
               <UsersIcon />
               Admin
             </DropdownMenuItem>
-            <DropdownMenuItem
-              v-if="isAuthenticated"
-              @click="navigateTo('/settings/account')"
-            >
+            <DropdownMenuItem v-if="isAuthenticated" @click="navigateTo('/settings/account')">
               <UserIcon />
               Account
             </DropdownMenuItem>
-            <DropdownMenuItem
-              v-else
-              @click="navigateTo('/auth/login')"
-            >
+            <DropdownMenuItem v-else @click="navigateTo('/auth/login')">
               <LogIn />
               Sign In
             </DropdownMenuItem>

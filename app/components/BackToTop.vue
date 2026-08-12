@@ -8,35 +8,35 @@
   >
     <Button
       v-if="showBackToTop"
-      class="fixed bottom-8 right-8 rounded-full w-12 h-12 shadow-lg hover:shadow-xl z-50 bg-primary hover:bg-primary/90"
+      class="fixed bottom-8 right-8 rounded-full size-12 shadow-lg hover:shadow-xl z-50 bg-primary hover:bg-primary/90"
       size="icon"
       @click="scrollToTop"
     >
-      <ArrowUp class="w-5 h-5" />
+      <ArrowUp class="size-5" />
     </Button>
   </Transition>
 </template>
 
 <script lang="ts" setup>
-import { ArrowUp } from 'lucide-vue-next'
-import { onMounted, ref } from 'vue'
+import { ArrowUp } from '@lucide/vue';
+import { onMounted, ref } from 'vue';
 
-import { Button } from './ui/button'
+import { Button } from './ui/button';
 
-const showBackToTop = ref(false)
+const showBackToTop = ref(false);
 const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
 onMounted(() => {
   const handleScroll = () => {
-    showBackToTop.value = window.scrollY > 300
-  }
+    showBackToTop.value = window.scrollY > 300;
+  };
 
-  window.addEventListener('scroll', handleScroll)
+  window.addEventListener('scroll', handleScroll);
 
   return () => {
-    window.removeEventListener('scroll', handleScroll)
-  }
-})
+    window.removeEventListener('scroll', handleScroll);
+  };
+});
 </script>

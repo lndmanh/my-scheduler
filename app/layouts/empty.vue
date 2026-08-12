@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import 'vue-sonner/style.css'
-import { Motion } from 'motion-v'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import 'vue-sonner/style.css';
+import { Motion } from 'motion-v';
 </script>

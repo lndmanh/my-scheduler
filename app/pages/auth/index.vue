@@ -1,16 +1,14 @@
 <template>
-  <div>
-    Navigating...
-  </div>
+  <div>Navigating...</div>
 </template>
 
 <script lang="ts" setup>
 // auto redirect to /auth/login
 useHead({
   title: 'Login',
-})
+});
 
 onMounted(() => {
-  navigateTo('/auth/login')
-})
+  navigateTo('/auth/login');
+});
 </script>

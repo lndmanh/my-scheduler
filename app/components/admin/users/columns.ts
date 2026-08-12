@@ -1,38 +1,31 @@
-import { h } from 'vue'
-import type { ColumnDef } from '@tanstack/vue-table'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Button } from '@/components/ui/button'
+import { h } from 'vue';
+import type { ColumnDef } from '@tanstack/vue-table';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next'
+} from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, Pencil, Trash2 } from '@lucide/vue';
+import type { ApiAdminUserPayload } from '~~/types/api';
 
-export interface User {
-  id: number
-  username: string
-  name: string
-  isAdmin: boolean
-  createdAt: Date | number | string
-  lastLoginAt: Date | number | string
-}
+export type User = ApiAdminUserPayload;
 
 function formatDate(date: Date | number | string) {
   try {
-    const d = new Date(date)
+    const d = new Date(date);
     return d.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    })
-  }
-  catch {
-    return '-'
+    });
+  } catch {
+    return '-';
   }
 }
 
@@ -45,16 +38,18 @@ export function createColumns(
       id: 'select',
       header: ({ table }) =>
         h(Checkbox, {
-          'modelValue': table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate'),
+          modelValue:
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate'),
           'onUpdate:modelValue': (value: boolean | string) =>
             table.toggleAllPageRowsSelected(!!value),
-          'ariaLabel': 'Select all',
+          ariaLabel: 'Select all',
         }),
       cell: ({ row }) =>
         h(Checkbox, {
-          'modelValue': row.getIsSelected(),
+          modelValue: row.getIsSelected(),
           'onUpdate:modelValue': (value: boolean | string) => row.toggleSelected(!!value),
-          'ariaLabel': 'Select row',
+          ariaLabel: 'Select row',
         }),
       enableSorting: false,
       enableHiding: false,
@@ -70,32 +65,38 @@ export function createColumns(
     {
       accessorKey: 'username',
       header: 'Username',
-      cell: ({ row }) =>
-        h('div', { class: 'font-medium' }, row.getValue('username')),
+      cell: ({ row }) => h('div', { class: 'font-medium' }, row.getValue('username')),
     },
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ row }) =>
-        h('div', { class: 'text-sm' }, row.getValue('name')),
+      cell: ({ row }) => h('div', { class: 'text-sm' }, row.getValue('name')),
     },
     {
       accessorKey: 'createdAt',
       header: 'Created',
       cell: ({ row }) =>
-        h('div', { class: 'text-sm text-muted-foreground whitespace-nowrap' }, formatDate(row.getValue('createdAt'))),
+        h(
+          'div',
+          { class: 'text-sm text-muted-foreground whitespace-nowrap' },
+          formatDate(row.getValue('createdAt')),
+        ),
     },
     {
       accessorKey: 'lastLoginAt',
       header: 'Last Login',
       cell: ({ row }) =>
-        h('div', { class: 'text-sm text-muted-foreground whitespace-nowrap' }, formatDate(row.getValue('lastLoginAt'))),
+        h(
+          'div',
+          { class: 'text-sm text-muted-foreground whitespace-nowrap' },
+          formatDate(row.getValue('lastLoginAt')),
+        ),
     },
     {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => {
-        const user = row.original
+        const user = row.original;
         return h(
           DropdownMenu,
           {},
@@ -105,16 +106,17 @@ export function createColumns(
                 DropdownMenuTrigger,
                 { asChild: true },
                 {
-                  default: () => h(
-                    Button,
-                    { variant: 'ghost', class: 'h-8 w-8 p-0' },
-                    {
-                      default: () => [
-                        h('span', { class: 'sr-only' }, 'Open menu'),
-                        h(MoreHorizontal, { class: 'h-4 w-4' }),
-                      ],
-                    },
-                  ),
+                  default: () =>
+                    h(
+                      Button,
+                      { variant: 'ghost', class: 'h-8 w-8 p-0' },
+                      {
+                        default: () => [
+                          h('span', { class: 'sr-only' }, 'Open menu'),
+                          h(MoreHorizontal, { class: 'h-4 w-4' }),
+                        ],
+                      },
+                    ),
                 },
               ),
               h(
@@ -128,10 +130,11 @@ export function createColumns(
                         onClick: () => onEdit(user),
                       },
                       {
-                        default: () => h('div', { class: 'flex items-center gap-2' }, [
-                          h(Pencil, { class: 'h-4 w-4' }),
-                          h('span', {}, 'Edit'),
-                        ]),
+                        default: () =>
+                          h('div', { class: 'flex items-center gap-2' }, [
+                            h(Pencil, { class: 'h-4 w-4' }),
+                            h('span', {}, 'Edit'),
+                          ]),
                       },
                     ),
                     h(
@@ -141,10 +144,11 @@ export function createColumns(
                         class: 'text-destructive focus:text-destructive',
                       },
                       {
-                        default: () => h('div', { class: 'flex items-center gap-2' }, [
-                          h(Trash2, { class: 'h-4 w-4' }),
-                          h('span', {}, 'Delete'),
-                        ]),
+                        default: () =>
+                          h('div', { class: 'flex items-center gap-2' }, [
+                            h(Trash2, { class: 'h-4 w-4' }),
+                            h('span', {}, 'Delete'),
+                          ]),
                       },
                     ),
                   ],
@@ -152,11 +156,11 @@ export function createColumns(
               ),
             ],
           },
-        )
+        );
       },
       enableSorting: false,
       enableHiding: false,
       size: 60,
     },
-  ]
+  ];
 }

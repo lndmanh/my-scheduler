@@ -1,13 +1,13 @@
 declare module '#auth-utils' {
   interface User {
-    id: number
-    username: string
-    name: string
-    isPremium: boolean
+    id: number;
+    username: string;
+    name: string;
+    isPremium: boolean;
   }
 
   interface UserSession {
-    loggedInAt?: Date
+    loggedInAt?: Date;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -21,8 +21,8 @@ declare module '#auth-utils' {
  * Use this when accessing session.user to get proper typing
  */
 export type SessionUser = {
-  id: number
-  username: string
-  name: string
-  isPremium: boolean
-}
+  id: number;
+  username: string;
+  name: string;
+  isPremium: boolean;
+};

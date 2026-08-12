@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ChevronRight } from 'lucide-vue-next'
-import { useRoute } from 'vue-router'
+import { ChevronRight } from '@lucide/vue';
+import { useRoute } from 'vue-router';
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -12,40 +12,37 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from '@/components/ui/sidebar'
-import { useSidebar } from '@/components/ui/sidebar/utils'
-import type { SidebarItem } from '~~/types/common'
+} from '@/components/ui/sidebar';
+import { useSidebar } from '@/components/ui/sidebar/utils';
+import type { SidebarItem } from '~~/types/common';
 
-const route = useRoute()
-const { isMobile, setOpenMobile } = useSidebar()
+const route = useRoute();
+const { isMobile, setOpenMobile } = useSidebar();
 
 defineProps<{
-  items: SidebarItem[]
-}>()
+  items: SidebarItem[];
+}>();
 
 const isItemActive = (itemUrl: string) => {
-  return route.path === itemUrl
-}
+  return route.path === itemUrl;
+};
 
 const hasActiveSubItem = (items?: { url: string }[]) => {
-  return items?.some(subItem => isItemActive(subItem.url)) ?? false
-}
+  return items?.some((subItem) => isItemActive(subItem.url)) ?? false;
+};
 
 const handleSubItemClick = () => {
   if (isMobile.value) {
-    setOpenMobile(false)
+    setOpenMobile(false);
   }
-}
+};
 </script>
 
 <template>
   <SidebarGroup>
     <SidebarGroupLabel>Platform</SidebarGroupLabel>
     <SidebarMenu>
-      <template
-        v-for="item in items"
-        :key="item.title"
-      >
+      <template v-for="item in items" :key="item.title">
         <!-- Item with sub-items (collapsible) -->
         <Collapsible
           v-if="item.items && item.items.length > 0"
@@ -62,10 +59,7 @@ const handleSubItemClick = () => {
                   'bg-sidebar-accent text-sidebar-accent-foreground': hasActiveSubItem(item.items),
                 }"
               >
-                <component
-                  :is="item.icon"
-                  v-if="item.icon"
-                />
+                <component :is="item.icon" v-if="item.icon" />
                 <span>{{ item.title }}</span>
                 <ChevronRight
                   class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
@@ -74,10 +68,7 @@ const handleSubItemClick = () => {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SidebarMenuSub>
-                <SidebarMenuSubItem
-                  v-for="subItem in item.items"
-                  :key="subItem.title"
-                >
+                <SidebarMenuSubItem v-for="subItem in item.items" :key="subItem.title">
                   <SidebarMenuSubButton as-child>
                     <nuxt-link
                       :to="subItem.url"
@@ -88,10 +79,7 @@ const handleSubItemClick = () => {
                       }"
                       @click="handleSubItemClick"
                     >
-                      <component
-                        :is="subItem.icon"
-                        v-if="subItem.icon"
-                      />
+                      <component :is="subItem.icon" v-if="subItem.icon" />
                       <span>{{ subItem.title }}</span>
                     </nuxt-link>
                   </SidebarMenuSubButton>
@@ -103,20 +91,14 @@ const handleSubItemClick = () => {
 
         <!-- Item without sub-items (simple button) -->
         <SidebarMenuItem v-else>
-          <SidebarMenuButton
-            as-child
-            :tooltip="item.title"
-          >
+          <SidebarMenuButton as-child :tooltip="item.title">
             <nuxt-link
               :to="item.url"
               :class="{
                 'bg-sidebar-accent text-sidebar-accent-foreground': isItemActive(item.url),
               }"
             >
-              <component
-                :is="item.icon"
-                v-if="item.icon"
-              />
+              <component :is="item.icon" v-if="item.icon" />
               <span>{{ item.title }}</span>
             </nuxt-link>
           </SidebarMenuButton>

@@ -9,12 +9,12 @@
   >
     <div
       v-if="loading && steps.length > 0"
-      class="fixed inset-0 z-[100] flex size-full items-center justify-center backdrop-blur-2xl"
+      class="fixed inset-0 z-100 flex size-full items-center justify-center backdrop-blur-2xl"
     >
       <!-- Closing Button -->
       <button
         v-show="!preventClose"
-        class="absolute right-4 top-4 z-[101] inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        class="absolute right-4 top-4 z-101 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
         size="sm"
         @click="close"
       >
@@ -27,19 +27,12 @@
           stroke="currentColor"
           class="size-6"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6 18 18 6M6 6l12 12"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
       </button>
       <div class="relative h-96">
         <div class="relative mx-auto mt-40 flex max-w-xl flex-col justify-start">
-          <div
-            v-for="(step, index) in steps"
-            :key="index"
-          >
+          <div v-for="(step, index) in steps" :key="index">
             <div
               v-if="step"
               class="mb-4 flex items-center gap-2 text-left transition-all duration-300 ease-in-out"
@@ -56,8 +49,8 @@
               <!--  check-circle-solid-heroicons -->
               <svg
                 v-if="
-                  index < currentState
-                    || (index === steps.length - 1 && index === currentState && isLastStepComplete)
+                  index < currentState ||
+                  (index === steps.length - 1 && index === currentState && isLastStepComplete)
                 "
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -118,11 +111,11 @@
                 >
                   <span
                     v-if="
-                      step.afterText
-                        && (index < currentState
-                          || (index === steps.length - 1
-                            && index === currentState
-                            && isLastStepComplete))
+                      step.afterText &&
+                      (index < currentState ||
+                        (index === steps.length - 1 &&
+                          index === currentState &&
+                          isLastStepComplete))
                     "
                     class="mt-1 text-sm text-gray-500 dark:text-gray-400"
                   >
@@ -135,90 +128,89 @@
         </div>
       </div>
       <div
-        class="absolute inset-x-0 bottom-0 z-[-1] h-full bg-white bg-gradient-to-t [mask-image:radial-gradient(900px_at_center,white_30%,transparent)] dark:bg-black"
+        class="absolute inset-x-0 bottom-0 z-[-1] h-full bg-white bg-linear-to-t mask-[radial-gradient(900px_at_center,white_30%,transparent)] dark:bg-black"
       />
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted } from 'vue';
 
 interface Step {
-  text: string // Display text for the step
-  afterText?: string // Text to show after step completion
-  async?: boolean // If true, waits for external trigger to proceed
-  duration?: number // Duration in ms before proceeding (default: 2000)
-  action?: () => void // Function to execute when step is active
+  text: string; // Display text for the step
+  afterText?: string; // Text to show after step completion
+  async?: boolean; // If true, waits for external trigger to proceed
+  duration?: number; // Duration in ms before proceeding (default: 2000)
+  action?: () => void; // Function to execute when step is active
 }
 interface Props {
-  steps: Step[]
-  loading?: boolean
-  defaultDuration?: number
-  preventClose?: boolean
+  steps: Step[];
+  loading?: boolean;
+  defaultDuration?: number;
+  preventClose?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
   defaultDuration: 1500,
   preventClose: false,
-})
+});
 
 const emit = defineEmits<{
-  'state-change': [number]
-  'complete': []
-  'close': []
-}>()
+  'state-change': [number];
+  complete: [];
+  close: [];
+}>();
 
-const currentState = ref(0)
-const stepStartTime = ref(Date.now())
-const isLastStepComplete = ref(false)
+const currentState = ref(0);
+const stepStartTime = ref(Date.now());
+const isLastStepComplete = ref(false);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let currentTimer: any = null
+let currentTimer: any = null;
 
 async function executeStepAction(step: Step) {
   if (typeof step.action === 'function') {
-    await step.action()
+    await step.action();
   }
 }
 
 async function proceedToNextStep() {
-  const currentStep = props.steps[currentState.value]
-  if (!currentStep) return
+  const currentStep = props.steps[currentState.value];
+  if (!currentStep) return;
 
   // Execute the current step's action
-  await executeStepAction(currentStep)
+  await executeStepAction(currentStep);
 
   if (currentState.value < props.steps.length - 1) {
-    currentState.value++
-    stepStartTime.value = Date.now()
-    emit('state-change', currentState.value)
-    processCurrentStep()
-  }
-  else {
-    isLastStepComplete.value = true
-    emit('complete')
+    currentState.value++;
+    stepStartTime.value = Date.now();
+    emit('state-change', currentState.value);
+    processCurrentStep();
+  } else {
+    isLastStepComplete.value = true;
+    emit('complete');
   }
 }
 
 async function processCurrentStep() {
   if (currentTimer) {
-    clearTimeout(currentTimer)
+    clearTimeout(currentTimer);
   }
 
-  const currentStep = props.steps[currentState.value]
-  if (!currentStep) return
+  const currentStep = props.steps[currentState.value];
+  if (!currentStep) return;
 
-  const duration = currentStep.duration || props.defaultDuration
+  const duration = currentStep.duration || props.defaultDuration;
 
   if (!currentStep.async) {
     currentTimer = setTimeout(() => {
-      proceedToNextStep()
-    }, duration)
+      proceedToNextStep();
+    }, duration);
   }
 }
 
 function close() {
-  emit('close')
+  emit('close');
 }
 
 // Watch for changes in the async property
@@ -227,35 +219,34 @@ watch(
   async (isAsync, oldIsAsync) => {
     // Only proceed if changing from async to non-async
     if (isAsync === false && oldIsAsync === true) {
-      const currentStep = props.steps[currentState.value]
-      if (!currentStep) return
+      const currentStep = props.steps[currentState.value];
+      if (!currentStep) return;
 
-      const duration = currentStep.duration || props.defaultDuration
+      const duration = currentStep.duration || props.defaultDuration;
       currentTimer = setTimeout(() => {
-        proceedToNextStep()
-      }, duration)
+        proceedToNextStep();
+      }, duration);
     }
   },
-)
+);
 
 watch(
   () => props.loading,
   (newLoading) => {
     if (newLoading) {
-      currentState.value = 0
-      stepStartTime.value = Date.now()
-      isLastStepComplete.value = false
-      processCurrentStep()
-    }
-    else if (currentTimer) {
-      clearTimeout(currentTimer)
+      currentState.value = 0;
+      stepStartTime.value = Date.now();
+      isLastStepComplete.value = false;
+      processCurrentStep();
+    } else if (currentTimer) {
+      clearTimeout(currentTimer);
     }
   },
-)
+);
 
 onUnmounted(() => {
   if (currentTimer) {
-    clearTimeout(currentTimer)
+    clearTimeout(currentTimer);
   }
-})
+});
 </script>

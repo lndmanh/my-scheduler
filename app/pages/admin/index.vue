@@ -1,10 +1,7 @@
 <template>
-  <AppLayout>
     <Tabs default-value="users">
       <TabsList class="grid w-full grid-cols-2">
-        <TabsTrigger value="users">
-          Users Management
-        </TabsTrigger>
+        <TabsTrigger value="users"> Users Management </TabsTrigger>
       </TabsList>
       <TabsContent value="users">
         <AdminUsersManager />
@@ -13,9 +10,7 @@
 
     <AlertDialog>
       <AlertDialogTrigger as-child>
-        <Button variant="destructive">
-          Clear Server Cache
-        </Button>
+        <Button variant="destructive"> Clear Server Cache </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -26,23 +21,17 @@
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction @click="clearServerCache">
-            Confirm
-          </AlertDialogAction>
+          <AlertDialogAction @click="clearServerCache"> Confirm </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs'
+import { apiRoutes } from '#shared/apiRoutes';
+import type { ApiCacheClearPayload, ApiResponse } from '~~/types/api';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,21 +42,31 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import AdminUsersManager from '@/components/admin/AdminUsersManager.vue'
-import { toast } from 'vue-sonner'
+} from '@/components/ui/alert-dialog';
+import AdminUsersManager from '@/components/admin/AdminUsersManager.vue';
+import { toast } from 'vue-sonner';
+import { apiRequest } from '@/utils/apiRequest';
+import { parseApiError } from '@/utils/apiError';
 
 definePageMeta({
   title: 'Admin Dashboard',
   breadcrumb: 'Admin',
   layout: 'dashboard',
-})
+});
 
-const clearServerCache = () => {
-  $fetch('/api/admin/clear-server-cache').then(() => {
-    toast.success('Server cache cleared successfully.')
-  }).catch(() => {
-    toast.error('Failed to clear server cache.')
-  })
+async function clearServerCache() {
+  try {
+    const response = await apiRequest<ApiResponse<ApiCacheClearPayload>>(apiRoutes.admin.clearServerCache, {
+      method: 'POST',
+    });
+
+    if (!response.success) {
+      throw response;
+    }
+
+    toast.success('Server cache cleared successfully.');
+  } catch (error) {
+    toast.error(parseApiError(error, 'Failed to clear server cache.').message);
+  }
 }
 </script>

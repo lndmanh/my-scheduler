@@ -1,7 +1,7 @@
 <template>
   <div>
     <header
-      class="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ease-out"
+      class="fixed top-0 inset-x-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ease-out"
       :class="isScrolled ? 'h-12' : 'h-16'"
     >
       <div class="container mx-auto flex h-full items-center justify-between px-4">
@@ -11,13 +11,15 @@
           class="flex items-center gap-2 group transition-transform duration-300"
           :class="isScrolled ? 'scale-90' : 'scale-100'"
         >
-          <NuxtImg
+          <img
             src="/favicon.svg"
             alt="Logo"
-            class="h-8 w-8 transition-all duration-300"
-            :class="isScrolled ? 'h-6 w-6' : 'h-8 w-8'"
+            class="size-8 transition-all duration-300"
+            :class="isScrolled ? 'size-6' : 'size-8'"
           />
-          <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <span
+            class="text-xl font-bold tracking-tight bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
+          >
             {{ APP_MANIFEST.name }}
           </span>
         </NuxtLink>
@@ -38,33 +40,31 @@
         <!-- Mobile Menu Trigger -->
         <Sheet v-model:open="isSheetOpen">
           <SheetTrigger as-child>
-            <Button
-              variant="ghost"
-              size="icon"
-              class="md:hidden relative"
-              aria-label="Open menu"
-            >
+            <Button variant="ghost" size="icon" class="md:hidden relative" aria-label="Open menu">
               <Menu
-                class="h-5 w-5 transition-transform duration-300"
-                :class="{ 'rotate-90 opacity-0': isSheetOpen, 'rotate-0 opacity-100': !isSheetOpen }"
+                class="size-5 transition-transform duration-300"
+                :class="{
+                  'rotate-90 opacity-0': isSheetOpen,
+                  'rotate-0 opacity-100': !isSheetOpen,
+                }"
               />
             </Button>
           </SheetTrigger>
 
           <!-- Mobile Navigation Sheet -->
-          <SheetContent
-            side="right"
-            class="w-full max-w-xs sm:max-w-sm"
-          >
+          <SheetContent side="right" class="w-full max-w-xs sm:max-w-sm">
             <SheetHeader class="text-left">
               <SheetTitle class="flex items-center gap-2">
-                <NuxtImg
+                <img
                   src="/favicon.svg"
                   alt="Logo"
-                  class="h-8 w-8 transition-all duration-300"
-                  :class="isScrolled ? 'h-6 w-6' : 'h-8 w-8'"
+                  class="size-8 transition-all duration-300"
+                  :class="isScrolled ? 'size-6' : 'size-8'"
                 />
-                <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{{ APP_MANIFEST.name }}</span>
+                <span
+                  class="text-xl font-bold tracking-tight bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
+                  >{{ APP_MANIFEST.name }}</span
+                >
               </SheetTitle>
             </SheetHeader>
             <nav class="flex flex-col gap-2 p-4 pt-0">
@@ -75,10 +75,7 @@
                 class="flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-[0.98]"
                 @click.prevent="handleMobileNavClick(item.sectionId)"
               >
-                <component
-                  :is="item.icon"
-                  class="h-5 w-5"
-                />
+                <component :is="item.icon" class="size-5" />
                 {{ item.label }}
               </a>
             </nav>
@@ -88,7 +85,7 @@
     </header>
 
     <main class="flex flex-1 flex-col">
-      <div class="mx-auto h-full w-full max-w-[1400px] min-[1800px]:max-w-[1536px] min-h-[90vh]">
+      <div class="mx-auto size-full max-w-[1400px] min-[1800px]:max-w-[1536px] min-h-[90vh]">
         <slot />
       </div>
     </main>
@@ -120,26 +117,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useWindowScroll } from '@vueuse/core'
-import { APP_MANIFEST, SEO_CONFIG } from '@/constants/manifest'
-import { Button } from '@/components/ui/button'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
-import { Home, Search, Users, Phone, Layers, Menu } from 'lucide-vue-next'
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useWindowScroll } from '@vueuse/core';
+import { APP_MANIFEST, SEO_CONFIG } from '@/constants/manifest';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Home, Search, Users, Phone, Layers, Menu } from '@lucide/vue';
 
-const router = useRouter()
-const isSheetOpen = ref(false)
+const router = useRouter();
+const isSheetOpen = ref(false);
 
 // Scroll detection for shrinking header effect
-const { y: scrollY } = useWindowScroll()
-const isScrolled = computed(() => scrollY.value > 50)
+const { y: scrollY } = useWindowScroll();
+const isScrolled = computed(() => scrollY.value > 50);
 
 // Navigation items with lucide icons and section IDs
 const navItems = [
@@ -163,7 +154,7 @@ const navItems = [
     sectionId: 'contact',
     icon: Phone,
   },
-]
+];
 
 // Function to scroll to section with smooth animation
 const scrollToSection = (sectionId: string) => {
@@ -172,35 +163,34 @@ const scrollToSection = (sectionId: string) => {
     router.push('/').then(() => {
       // Wait for navigation to complete, then scroll
       setTimeout(() => {
-        scrollToElement(sectionId)
-      }, 100)
-    })
+        scrollToElement(sectionId);
+      }, 100);
+    });
+  } else {
+    scrollToElement(sectionId);
   }
-  else {
-    scrollToElement(sectionId)
-  }
-}
+};
 
 const scrollToElement = (sectionId: string) => {
-  const element = document.getElementById(sectionId)
+  const element = document.getElementById(sectionId);
   if (element) {
-    const headerOffset = 80 // Account for fixed header height
-    const elementPosition = element.getBoundingClientRect().top
-    const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+    const headerOffset = 80; // Account for fixed header height
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
     window.scrollTo({
       top: offsetPosition,
       behavior: 'smooth',
-    })
+    });
   }
-}
+};
 
 // Handle mobile nav click - close sheet and scroll
 const handleMobileNavClick = (sectionId: string) => {
-  isSheetOpen.value = false
+  isSheetOpen.value = false;
   // Small delay to allow sheet to close
   setTimeout(() => {
-    scrollToSection(sectionId)
-  }, 300)
-}
+    scrollToSection(sectionId);
+  }, 300);
+};
 </script>
