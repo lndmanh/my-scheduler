@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "scheduler",
+  "main": "./.output/server/index.mjs",
+  "compatibility_date": "2026-02-19",
+  "assets": {
+    "directory": "./.output/public/",
+    "binding": "ASSETS",
+  },
+  "observability": {
+    "enabled": false,
+    "traces": {
+      "enabled": true,
+    },
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "f7fd6265-ae79-4a55-b560-461c80f0d4d9",
+      "migrations_dir": "./.output/server/db/migrations/sqlite",
+      "migrations_table": "_hub_migrations",
+    },
+  ],
+  "routes": [
+    {
+      "pattern": "uet.nnsvn.me",
+      "zone_name": "nnsvn.me",
+      "custom_domain": true,
+    },
+  ],
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "NUXT_SESSION_MAX_AGE": "2592000",
+    "NUXT_PUBLIC_SITE_URL": "uet.nnsvn.me",
+  },
+}

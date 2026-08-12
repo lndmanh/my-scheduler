@@ -1,14 +1,11 @@
-import pwaConfig from './pwa.config'
-import { APP_MANIFEST, SEO_CONFIG } from './app/constants/manifest'
+import { APP_MANIFEST } from './app/constants/manifest';
+import { routeRules } from './shared/apiRoutes';
 
 export default defineNuxtConfig({
   modules: [
     'shadcn-nuxt',
     '@vueuse/nuxt',
-    '@nuxt/content',
-    '@nuxt/eslint',
     '@nuxt/fonts',
-    '@nuxt/image',
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
     '@vite-pwa/nuxt',
@@ -17,105 +14,54 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     '@nuxtjs/color-mode',
     'nuxt-security',
-    '@nuxtjs/robots',
-    '@nuxtjs/sitemap',
-    'nuxt-schema-org',
-    'nuxt-seo-utils',
+    '@vee-validate/nuxt',
   ],
-  $development: {
-    devtools: {
-      enabled: true,
-    },
-    security: {
-      strict: false,
-      headers: {
-        contentSecurityPolicy: false,
-        permissionsPolicy: {
-          fullscreen: ['self'],
-        },
-      },
-      rateLimiter: false,
-    },
-  },
 
   $production: {
-    app: {
-      head: {
-        title: APP_MANIFEST.name,
-        link: [
-          { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
-          { rel: 'icon', href: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
-          { rel: 'apple-touch-icon', href: '/apple-touch-icon-180x180.png' },
+    pwa: {
+      // Use injectManifest for full control over the service worker.
+      // This is required for SSR apps to properly handle offline fallbacks
+      // (generateSW cannot add a setCatchHandler for navigation requests).
+      strategies: 'injectManifest',
+      registerType: 'autoUpdate',
+      minify: true,
+      manifest: APP_MANIFEST,
+      srcDir: 'service-worker',
+      filename: 'sw.ts',
+      injectManifest: {
+        maximumFileSizeToCacheInBytes: 4000000,
+        globPatterns: ['**/*.{js,css,html,svg,ico,woff2}'],
+        additionalManifestEntries: [
+          { url: '/pwa', revision: null },
+          { url: '/~offline', revision: null },
         ],
       },
     },
+  },
 
-    routeRules: {
-      '/api/**': {
-        security: {
-          rateLimiter: {
-            tokensPerInterval: 250,
-            interval: 60000,
-            headers: true,
-            throwError: true,
-          },
-        },
-      },
-    },
-    experimental: {
-      emitRouteChunkError: 'automatic-immediate',
-    },
-    nitro: {
-      compressPublicAssets: true,
-      minify: true,
-      experimental: {
-        openAPI: true,
-        wasm: true,
-      },
-      cloudflare: {
-        nodeCompat: true,
-      },
-      prerender: {
-        crawlLinks: false, // set this to false so we do not bundle everything
-        routes: ['/sitemap.xml', '/robots.txt'], // never render homepage because somehow it breaks the build
-        ignore: ['/admin', '/pwa', '/__og-image__/static/pwa'],
-      },
-    },
+  devtools: {
+    enabled: true,
 
-    pwa: pwaConfig,
-    security: {
-      rateLimiter: false,
-      strict: true,
-      headers: {
-        crossOriginOpenerPolicy: 'same-origin-allow-popups',
-        crossOriginEmbedderPolicy: 'unsafe-none',
-        contentSecurityPolicy: {
-          'script-src': [
-            '\'self\'',
-            'https:',
-            '\'unsafe-inline\'',
-            '\'strict-dynamic\'',
-            '\'nonce-{{nonce}}\'',
-            '\'unsafe-eval\'',
-          ],
-          'style-src': ['\'self\'', 'https:', '\'unsafe-inline\''],
-          'img-src': ['\'self\'', 'data:', 'https://*.gstatic.com'],
-          'media-src': ['\'self\'', 'blob:'],
-          'connect-src': ['\'self\''],
-          'font-src': ['\'self\'', 'https://*.gstatic.com'],
-        },
-        permissionsPolicy: {
-          'fullscreen': ['self'],
-          'picture-in-picture': ['self'],
-          'web-share': ['self'],
-          'autoplay': ['self'],
-        },
-      },
+    timeline: {
+      enabled: true,
     },
   },
 
+  app: {
+    // pageTransition: { name: 'page', mode: 'out-in' }, currently disabled because sometimes page transitions can cause issues with the page not loading properly, especially when navigating between pages with different layouts.
+    head: {
+      title: APP_MANIFEST.name,
+      link: [
+        { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+        { rel: 'icon', href: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      ],
+    },
+  },
+  css: ['~/assets/css/tailwind.css', '~/assets/css/global.css'],
+
   site: {
-    url: 'nnsvn.me',
+    url: 'uet.nnsvn.me',
     name: APP_MANIFEST.name,
   },
 
@@ -127,53 +73,106 @@ export default defineNuxtConfig({
     disableTransition: true,
   },
 
-  content: {
-    build: {
-      markdown: {
-        highlight: false,
-      },
-    },
-  },
-
   runtimeConfig: {
     public: {
-      NUXT_APP_VERSION: process.env.npm_package_version || '0.0.0',
+      version: process.env.npm_package_version || '0.0.0',
+      url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    },
+    session: {
+      password: '',
+      // Without maxAge the session cookie is written with no Expires, so it only
+      // lives as long as the browsing session. Desktop browsers keep (and restore)
+      // that, but mobile browsers and the standalone PWA drop it every time the OS
+      // kills the process, logging mobile users out constantly.
+      // Counted from login, not from last activity: h3 never refreshes createdAt,
+      // so this is an absolute lifetime rather than a sliding window.
+      maxAge: 60 * 60 * 24 * 30, // 30 days
     },
   },
 
-  routeRules: {
-    '/admin/**': {
-      ssr: false,
+  routeRules: routeRules,
+
+  compatibilityDate: '2026-01-30',
+  nitro: {
+    compressPublicAssets: true,
+    minify: true,
+    preset: 'cloudflare-module',
+    experimental: {
+      openAPI: true,
+      wasm: true,
+      tasks: true,
+    },
+
+    wasm: {
+      esmImport: true,
+      lazy: true,
+      silent: true,
+    },
+    rollupConfig: {
+      external: ['sharp', /^@img\/sharp.*/],
+      output: {
+        generatedCode: {
+          constBindings: true,
+        },
+      },
+    },
+    cloudflare: {
+      // deployConfig writes the merged binding spec to
+      // .output/server/wrangler.json at build time — the SINGLE source of
+      // truth for the Worker config; there is no hand-maintained
+      // wrangler.json. Deploy: wrangler deploy --config .output/server/wrangler.json
+      deployConfig: true,
+      nodeCompat: true,
+      wrangler: {
+        compatibility_date: '2026-06-16',
+        compatibility_flags: ['nodejs_compat'],
+        workers_dev: false,
+        observability: {
+          logs: { enabled: true, invocation_logs: true },
+        },
+        routes: [{ pattern: 'uet.nnsvn.me', custom_domain: true }],
+        triggers: {
+          crons: ['0 * * * *'],
+        },
+      },
+    },
+    typescript: {
+      tsConfig: {
+        exclude: ['**/dist/**', '**/node_modules/**'],
+      },
     },
   },
-
-  compatibilityDate: '2025-09-15',
 
   hub: {
-    cache: true,
-    bindings: {
-      observability: {
-        logs: true,
-      },
-      compatibilityDate: '2025-09-15',
+    // D1 database
+    db: 'sqlite',
+    // KV namespace (binding defaults to 'KV')
+    kv: false,
+    // Cache KV namespace (binding defaults to 'CACHE')
+    cache: false,
+    // R2 bucket (binding defaults to 'BLOB')
+    blob: false,
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: ['clsx', 'reka-ui', 'tailwind-merge'],
     },
-    database: true,
-    kv: true,
-    blob: true,
+    build: {
+      chunkSizeWarningLimit: 1500,
+      rollupOptions: {
+        external: ['sharp'],
+      },
+    },
+  },
+
+  sourcemap: {
+    server: true,
+    client: false,
   },
 
   auth: {
     webAuthn: true,
-  },
-
-  eslint: {
-    config: {
-      stylistic: {
-        semi: false,
-        quotes: 'single',
-        indent: 2,
-      },
-    },
   },
 
   fonts: {
@@ -186,28 +185,82 @@ export default defineNuxtConfig({
       },
     ],
   },
-
-  schemaOrg: {
-    identity: 'Organization',
-  },
-
-  seo: {
-    meta: {
-      description: APP_MANIFEST.description,
-      keywords: SEO_CONFIG.keywords,
-      themeColor: APP_MANIFEST.theme_color,
-      applicationName: APP_MANIFEST.short_name,
-      appleMobileWebAppTitle: APP_MANIFEST.short_name,
-      appleMobileWebAppCapable: 'yes',
-      appleMobileWebAppStatusBarStyle: 'black-translucent',
-      mobileWebAppCapable: 'yes',
-      msapplicationTileColor: APP_MANIFEST.background_color,
-      charset: 'utf-8',
-      viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
-      ogImage: '/pwa-512x512.png',
-      twitterTitle: APP_MANIFEST.name,
-      twitterDescription: APP_MANIFEST.description,
-      twitterImage: '/pwa-512x512.png',
+  security: {
+    rateLimiter: false,
+    strict: true,
+    nonce: true,
+    ssg: {
+      hashScripts: true, // In the SSG case, inline scripts generated by the server will be allowed by hash
+    },
+    // MCP tool-call bodies legitimately contain component source snippets
+    // ("<script setup>") that the XSS validator would reject with a 400.
+    xssValidator: false,
+    // SRI breaks hydration behind Cloudflare's immutable edge cache: Vite
+    // injects __vite__mapDeps after content-hash naming, so a chunk filename
+    // can carry different bytes across deploys and the stale cached variant
+    // fails the integrity check (resource blocked, app init fails).
+    sri: false,
+    headers: {
+      crossOriginOpenerPolicy: 'same-origin-allow-popups',
+      crossOriginEmbedderPolicy: 'unsafe-none',
+      contentSecurityPolicy: {
+        'form-action': ["'self'"],
+        'frame-ancestors': ["'none'"],
+        'script-src': [
+          "'self'",
+          'https:',
+          "'unsafe-inline'",
+          "'strict-dynamic'",
+          "'nonce-{{nonce}}'",
+          "'unsafe-eval'",
+        ],
+        'style-src': ["'self'", 'https:', "'unsafe-inline'", 'https://challenges.cloudflare.com'],
+        'img-src': [
+          "'self'",
+          'data:',
+          'blob:',
+          'https://images.unsplash.com',
+          'https://api.dicebear.com',
+          'https://*.svc.ms',
+          'https://*.google.com',
+          'https://*.gstatic.com',
+          'https://*.googleapis.com',
+          'https://*.picsum.photos',
+        ],
+        'media-src': ["'self'", 'blob:', 'https://*.svc.ms'],
+        'connect-src': [
+          "'self'",
+          'https://translate-pa.googleapis.com',
+          'https://*.svc.ms',
+          'https://*.sentry.io',
+          'https://challenges.cloudflare.com',
+          'https://api.iconify.design',
+          'https://api.simplesvg.com',
+          'https://api.simplesvg.com',
+          'https://api.unisvg.com',
+        ],
+        'font-src': ["'self'", 'https://*.gstatic.com'],
+        'worker-src': ["'self'", 'blob:'],
+        'frame-src': ["'self'", 'https://www.youtube.com', 'https://challenges.cloudflare.com'],
+        'upgrade-insecure-requests': true,
+      },
+      permissionsPolicy: {
+        fullscreen: ['self'],
+        'picture-in-picture': ['self'],
+        'publickey-credentials-get': ['self'],
+        'web-share': ['self'],
+        autoplay: ['self'],
+        // disabled
+        camera: [],
+        'display-capture': [],
+        geolocation: [],
+        microphone: [],
+      },
+      strictTransportSecurity: {
+        maxAge: 31536000,
+        includeSubdomains: true,
+        preload: true,
+      },
     },
   },
 
@@ -215,4 +268,4 @@ export default defineNuxtConfig({
     prefix: '',
     componentDir: './app/components/ui',
   },
-})
+});

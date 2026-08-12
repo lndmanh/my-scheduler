@@ -1,0 +1,494 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* Classes used by shared/constants/themes.ts live outside Nuxt's app/ srcDir. */
+@source '../../../shared';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Semantic colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Extra app-level semantic colors */
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Typography: one UI family, one optional reading family */
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-reader: 'Source Serif 4', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+
+  /* Shape */
+  --radius-xs: calc(var(--radius) - 8px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: calc(var(--radius) - 2px);
+  --radius-xl: var(--radius);
+  --radius-2xl: calc(var(--radius) + 4px);
+  --radius-3xl: calc(var(--radius) + 8px);
+  --radius-4xl: calc(var(--radius) + 12px);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-accordion-down: accordion-down 180ms var(--ease-standard);
+  --animate-accordion-up: accordion-up 180ms var(--ease-standard);
+  --animate-aurora: aurora 60s linear infinite;
+  --animate-fade-up: fade-up 420ms var(--ease-emphasized) both;
+  --animate-scale-in: scale-in 220ms var(--ease-emphasized) both;
+
+  /* Elevation */
+  --shadow-2xs: 0 1px 2px 0 var(--shadow-soft);
+  --shadow-xs: 0 1px 2px 0 var(--shadow-soft), 0 2px 6px -4px var(--shadow-strong);
+  --shadow-sm: 0 1px 2px 0 var(--shadow-soft), 0 8px 22px -16px var(--shadow-strong);
+  --shadow: 0 1px 2px 0 var(--shadow-soft), 0 12px 30px -18px var(--shadow-strong);
+  --shadow-md: 0 2px 4px -1px var(--shadow-soft), 0 18px 40px -22px var(--shadow-strong);
+  --shadow-lg: 0 4px 8px -2px var(--shadow-soft), 0 26px 56px -28px var(--shadow-strong);
+  --shadow-xl: 0 8px 16px -6px var(--shadow-soft), 0 34px 72px -30px var(--shadow-strong);
+  --shadow-2xl: 0 14px 34px -12px var(--shadow-soft), 0 44px 90px -34px var(--shadow-strong);
+  --shadow-card: 0 1px 2px 0 var(--shadow-soft), 0 14px 34px -24px var(--shadow-strong);
+  --shadow-float: 0 8px 22px -12px var(--shadow-soft), 0 30px 70px -30px var(--shadow-strong);
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: var(--reka-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--reka-accordion-content-height);
+    }
+
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.975);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/*
+ * Luminous Ink
+ * A cool-neutral base with a restrained iris accent.
+ */
+:root {
+  color-scheme: light;
+  --radius: 0.875rem;
+
+  --background: oklch(0.985 0.004 270);
+  --foreground: oklch(0.205 0.025 265);
+
+  --surface: oklch(0.969 0.008 265);
+  --surface-foreground: oklch(0.24 0.025 265);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.205 0.025 265);
+  --popover: oklch(0.998 0.002 270);
+  --popover-foreground: oklch(0.205 0.025 265);
+
+  --primary: oklch(0.52 0.18 267);
+  --primary-foreground: oklch(0.985 0.005 260);
+
+  --secondary: oklch(0.954 0.014 265);
+  --secondary-foreground: oklch(0.29 0.035 265);
+
+  --muted: oklch(0.95 0.012 265);
+  --muted-foreground: oklch(0.5 0.025 265);
+
+  --accent: oklch(0.94 0.035 292);
+  --accent-foreground: oklch(0.31 0.07 280);
+
+  --destructive: oklch(0.58 0.22 26);
+  --destructive-foreground: oklch(0.985 0.005 26);
+  --success: oklch(0.54 0.11 155);
+  --success-foreground: oklch(0.985 0.005 155);
+  --warning: oklch(0.76 0.15 78);
+  --warning-foreground: oklch(0.25 0.05 65);
+  --info: oklch(0.54 0.13 250);
+  --info-foreground: oklch(0.985 0.005 250);
+
+  --border: oklch(0.9 0.015 265);
+  --input: oklch(0.91 0.014 265);
+  --ring: oklch(0.62 0.17 268);
+
+  --chart-1: oklch(0.58 0.18 267);
+  --chart-2: oklch(0.65 0.13 185);
+  --chart-3: oklch(0.61 0.18 305);
+  --chart-4: oklch(0.76 0.16 80);
+  --chart-5: oklch(0.65 0.18 20);
+
+  --sidebar: oklch(0.972 0.009 265);
+  --sidebar-foreground: oklch(0.205 0.025 265);
+  --sidebar-primary: oklch(0.52 0.18 267);
+  --sidebar-primary-foreground: oklch(0.985 0.005 260);
+  --sidebar-accent: oklch(0.94 0.035 292);
+  --sidebar-accent-foreground: oklch(0.31 0.07 280);
+  --sidebar-border: oklch(0.89 0.016 265);
+  --sidebar-ring: oklch(0.62 0.17 268);
+
+  --shadow-soft: oklch(0.2 0.03 265 / 0.05);
+  --shadow-strong: oklch(0.2 0.04 265 / 0.14);
+  --ambient-primary: oklch(0.68 0.15 270 / 0.1);
+  --ambient-secondary: oklch(0.72 0.11 315 / 0.075);
+
+  /*
+   * Course palette.
+   * Eight hues spaced 40-45 degrees apart so neighbours stay distinguishable
+   * in a dense grid. Chroma is held low deliberately: a full week can put all
+   * eight on screen at once, and saturated fills would turn the timetable into
+   * confetti. Lightness is nudged per hue where oklch chroma limits would
+   * otherwise make amber and green read darker than the rest.
+   */
+  --course-1-accent: oklch(0.55 0.16 267);
+  --course-1-surface: oklch(0.965 0.022 267);
+  --course-1-border: oklch(0.88 0.055 267);
+
+  --course-2-accent: oklch(0.55 0.16 310);
+  --course-2-surface: oklch(0.965 0.022 310);
+  --course-2-border: oklch(0.88 0.055 310);
+
+  --course-3-accent: oklch(0.56 0.16 350);
+  --course-3-surface: oklch(0.965 0.022 350);
+  --course-3-border: oklch(0.88 0.055 350);
+
+  --course-4-accent: oklch(0.58 0.15 30);
+  --course-4-surface: oklch(0.965 0.022 30);
+  --course-4-border: oklch(0.88 0.055 30);
+
+  --course-5-accent: oklch(0.62 0.13 75);
+  --course-5-surface: oklch(0.965 0.024 75);
+  --course-5-border: oklch(0.88 0.06 75);
+
+  --course-6-accent: oklch(0.56 0.13 145);
+  --course-6-surface: oklch(0.965 0.022 145);
+  --course-6-border: oklch(0.88 0.055 145);
+
+  --course-7-accent: oklch(0.55 0.12 190);
+  --course-7-surface: oklch(0.965 0.022 190);
+  --course-7-border: oklch(0.88 0.055 190);
+
+  --course-8-accent: oklch(0.55 0.15 230);
+  --course-8-surface: oklch(0.965 0.022 230);
+  --course-8-border: oklch(0.88 0.055 230);
+
+  /* Current-time marker. Red is the near-universal calendar convention for
+     "now", and it is deliberately its own token rather than --destructive,
+     which carries a "danger" meaning this does not have. */
+  --now: oklch(0.58 0.21 25);
+  --now-foreground: oklch(0.99 0.01 25);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: oklch(0.17 0.018 265);
+  --foreground: oklch(0.95 0.008 265);
+
+  --surface: oklch(0.19 0.02 265);
+  --surface-foreground: oklch(0.92 0.01 265);
+
+  --card: oklch(0.21 0.022 265);
+  --card-foreground: oklch(0.95 0.008 265);
+  --popover: oklch(0.225 0.024 265);
+  --popover-foreground: oklch(0.95 0.008 265);
+
+  --primary: oklch(0.72 0.15 270);
+  --primary-foreground: oklch(0.17 0.025 265);
+
+  --secondary: oklch(0.26 0.025 265);
+  --secondary-foreground: oklch(0.92 0.01 265);
+
+  --muted: oklch(0.245 0.02 265);
+  --muted-foreground: oklch(0.72 0.025 265);
+
+  --accent: oklch(0.285 0.055 285);
+  --accent-foreground: oklch(0.93 0.025 285);
+
+  --destructive: oklch(0.67 0.19 24);
+  --destructive-foreground: oklch(0.17 0.025 24);
+  --success: oklch(0.7 0.12 155);
+  --success-foreground: oklch(0.17 0.025 155);
+  --warning: oklch(0.8 0.14 82);
+  --warning-foreground: oklch(0.19 0.04 65);
+  --info: oklch(0.72 0.13 250);
+  --info-foreground: oklch(0.17 0.025 250);
+
+  --border: oklch(0.36 0.026 265 / 0.62);
+  --input: oklch(0.34 0.025 265 / 0.78);
+  --ring: oklch(0.72 0.15 270);
+
+  --chart-1: oklch(0.72 0.15 270);
+  --chart-2: oklch(0.73 0.13 180);
+  --chart-3: oklch(0.72 0.16 310);
+  --chart-4: oklch(0.8 0.15 85);
+  --chart-5: oklch(0.72 0.16 20);
+
+  --sidebar: oklch(0.185 0.02 265);
+  --sidebar-foreground: oklch(0.95 0.008 265);
+  --sidebar-primary: oklch(0.72 0.15 270);
+  --sidebar-primary-foreground: oklch(0.17 0.025 265);
+  --sidebar-accent: oklch(0.255 0.035 280);
+  --sidebar-accent-foreground: oklch(0.93 0.02 280);
+  --sidebar-border: oklch(0.36 0.026 265 / 0.58);
+  --sidebar-ring: oklch(0.72 0.15 270);
+
+  --shadow-soft: oklch(0.04 0.02 265 / 0.3);
+  --shadow-strong: oklch(0.02 0.02 265 / 0.58);
+  --ambient-primary: oklch(0.58 0.17 270 / 0.16);
+  --ambient-secondary: oklch(0.56 0.12 315 / 0.1);
+
+  /* Course palette, dark. Surfaces lift off the card rather than tinting down,
+     so a coloured card still reads as raised in a dark room. */
+  --course-1-accent: oklch(0.74 0.14 267);
+  --course-1-surface: oklch(0.27 0.038 267);
+  --course-1-border: oklch(0.42 0.07 267);
+
+  --course-2-accent: oklch(0.74 0.14 310);
+  --course-2-surface: oklch(0.27 0.038 310);
+  --course-2-border: oklch(0.42 0.07 310);
+
+  --course-3-accent: oklch(0.75 0.14 350);
+  --course-3-surface: oklch(0.27 0.038 350);
+  --course-3-border: oklch(0.42 0.07 350);
+
+  --course-4-accent: oklch(0.76 0.13 30);
+  --course-4-surface: oklch(0.27 0.038 30);
+  --course-4-border: oklch(0.42 0.07 30);
+
+  --course-5-accent: oklch(0.8 0.13 75);
+  --course-5-surface: oklch(0.27 0.04 75);
+  --course-5-border: oklch(0.42 0.075 75);
+
+  --course-6-accent: oklch(0.75 0.12 145);
+  --course-6-surface: oklch(0.27 0.038 145);
+  --course-6-border: oklch(0.42 0.07 145);
+
+  --course-7-accent: oklch(0.75 0.11 190);
+  --course-7-surface: oklch(0.27 0.036 190);
+  --course-7-border: oklch(0.42 0.065 190);
+
+  --course-8-accent: oklch(0.74 0.13 230);
+  --course-8-surface: oklch(0.27 0.038 230);
+  --course-8-border: oklch(0.42 0.07 230);
+
+  --now: oklch(0.71 0.19 25);
+  --now-foreground: oklch(0.17 0.03 25);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    min-width: 320px;
+    scroll-behavior: smooth;
+    background: var(--background);
+  }
+
+  body {
+    @apply min-h-dvh bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    letter-spacing: -0.006em;
+    text-rendering: optimizeLegibility;
+    background-image:
+      radial-gradient(64rem 38rem at -12% -18%, var(--ambient-primary), transparent 70%),
+      radial-gradient(54rem 34rem at 112% -10%, var(--ambient-secondary), transparent 72%);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 650;
+    letter-spacing: -0.032em;
+    text-wrap: balance;
+  }
+
+  h1,
+  h2 {
+    letter-spacing: -0.042em;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--primary) 24%, transparent);
+  }
+
+  [data-sonner-toaster] {
+    margin-top: env(safe-area-inset-top, 0px) !important;
+    margin-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 20%, transparent) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    min-height: 40px;
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--foreground) 20%, transparent);
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--foreground) 32%, transparent);
+    background-clip: content-box;
+  }
+}
+
+@layer components {
+  .app-card,
+  .app-card-interactive {
+    @apply rounded-2xl border border-border/70 bg-card/90 text-card-foreground shadow-card backdrop-blur-xl;
+  }
+
+  .app-card-interactive {
+    @apply transition duration-200;
+  }
+
+  .app-card-interactive:hover {
+    @apply -translate-y-0.5 border-primary/20 bg-card shadow-md;
+  }
+
+  .app-toolbar {
+    @apply rounded-2xl border border-border/70 bg-background/78 shadow-sm backdrop-blur-xl;
+  }
+
+  .app-kicker {
+    @apply text-primary text-xs font-semibold uppercase tracking-[0.16em];
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

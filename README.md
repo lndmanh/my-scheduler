@@ -25,6 +25,7 @@ A modern, production-ready Nuxt 3 starter template with NuxtHub, Authentication,
 ## 📦 Tech Stack
 
 ### Frontend
+
 - [Vue 3](https://vuejs.org/) - Progressive JavaScript Framework
 - [Nuxt 4](https://nuxt.com/) - The Intuitive Vue Framework
 - [Tailwind CSS 4](https://tailwindcss.com/) - Utility-first CSS framework
@@ -36,6 +37,7 @@ A modern, production-ready Nuxt 3 starter template with NuxtHub, Authentication,
 - [Lucide Icons](https://lucide.dev/) - Beautiful icons
 
 ### Backend
+
 - [NuxtHub](https://hub.nuxt.com/) - Cloudflare deployment platform
 - [Drizzle ORM](https://orm.drizzle.team/) - Type-safe SQL ORM
 - [SQLite](https://www.sqlite.org/) - Embedded database (via better-sqlite3)
@@ -43,6 +45,7 @@ A modern, production-ready Nuxt 3 starter template with NuxtHub, Authentication,
 - [SimpleWebAuthn](https://simplewebauthn.dev/) - WebAuthn/Passkey support
 
 ### DevTools
+
 - [ESLint](https://eslint.org/) - Code linting with @nuxt/eslint
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
 
@@ -56,27 +59,32 @@ A modern, production-ready Nuxt 3 starter template with NuxtHub, Authentication,
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/No-Name-Studio-VN/nuxt-template.git
 cd nuxt-template
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Generate database migrations:
+
 ```bash
 npm run db:generate
 ```
 
 5. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -85,14 +93,14 @@ The app will be available at `http://localhost:3000`.
 
 ## 📜 Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server with PWA assets generation |
-| `npm run build` | Build for production |
-| `npm run generate` | Generate static site |
-| `npm run preview` | Preview production build on port 4000 |
-| `npm run lint` | Run ESLint with auto-fix |
-| `npm run db:generate` | Generate Drizzle migrations |
+| Command               | Description                                         |
+| --------------------- | --------------------------------------------------- |
+| `npm run dev`         | Start development server with PWA assets generation |
+| `npm run build`       | Build for production                                |
+| `npm run generate`    | Generate static site                                |
+| `npm run preview`     | Preview production build on port 4000               |
+| `npm run lint`        | Run ESLint with auto-fix                            |
+| `npm run db:generate` | Generate Drizzle migrations                         |
 
 ## 📁 Project Structure
 
@@ -154,6 +162,7 @@ Pre-configured with [shadcn-vue](https://www.shadcn-vue.com/) using the New York
 - Table, Tabs, Tooltip, and more...
 
 Add new components using:
+
 ```bash
 npx shadcn-vue@latest add <component-name>
 ```
